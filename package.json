@@ -1,0 +1,18 @@
+{
+  "author": "noname",
+  "name": "spark_lightning_benchmarks",
+  "version": "1.0.0",
+  "dependencies": {
+    "patch-package": "^6.2.0",
+    "wpe-lightning": "^1.3.0",
+    "wpe-lightning-sdk": "git+https://github.com/pxscene/Lightning-SDK.git#spark"
+  },
+  "scripts": {
+    "copyfix": "cp ./node_modules/wpe-lightning/dist/lightning.min.js ./node_modules/wpe-lightning/dist/lightning-web.js",
+    "patch": "npx patch-package",
+    "postinstall": "npm run copyfix && npm run patch",
+    "build": "npm run release-spark && npm run release-web",
+    "release-web": "node ./node_modules/wpe-lightning-sdk/scripts/release-web.js",
+    "release-spark": "patch-package wpe-lightning-sdk+1.0.20.patch; node ./node_modules/wpe-lightning-sdk/scripts/release-spark.js"
+  }
+}

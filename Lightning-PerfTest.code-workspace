@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"workbench.colorTheme": "Tomorrow Night Blue",
+		"git.ignoreLimitWarning": true
+	}
+}

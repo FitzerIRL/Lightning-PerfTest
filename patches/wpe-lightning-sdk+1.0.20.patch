@@ -1,0 +1,84 @@
+diff --git a/node_modules/wpe-lightning-sdk/dist/spark/DevLauncher.mjs b/node_modules/wpe-lightning-sdk/dist/spark/DevLauncher.mjs
+index 1e9319d..c9b8c2b 100644
+--- a/node_modules/wpe-lightning-sdk/dist/spark/DevLauncher.mjs
++++ b/node_modules/wpe-lightning-sdk/dist/spark/DevLauncher.mjs
+@@ -27,6 +27,9 @@ export default class DevLauncher {
+         ux.Ui.staticFilesPath = __dirname + "/";
+ 
+         this._ui = new ux.Ui(this._lightningOptions);
++
++        this._ui.stage.startApp_ms = Date.now();  // Timestamp START the App
++
+         this._ui.startApp(this._appType);
+     }
+ 
+diff --git a/node_modules/wpe-lightning-sdk/dist/spark/rollup.config.js b/node_modules/wpe-lightning-sdk/dist/spark/rollup.config.js
+index 61b60a1..6fc7074 100644
+--- a/node_modules/wpe-lightning-sdk/dist/spark/rollup.config.js
++++ b/node_modules/wpe-lightning-sdk/dist/spark/rollup.config.js
+@@ -1,13 +1,28 @@
+ const resolve = require('rollup-plugin-node-resolve');
++const license = require('rollup-plugin-license');
+ 
+ export default {
+-    input: 'start.mjs',
+-    plugins: [resolve({
+-        only: [ 'wpe-lightning-spark', 'wpe-lightning' ]
+-    })],
+-    output: {
+-        file: './lightning-demo-spark.js',
+-        format: 'cjs',
+-        name: 'lng'
+-    }
++  input: 'start.mjs',
++  plugins:
++  [
++    resolve({
++      only: [ 'wpe-lightning-spark', 'wpe-lightning' ]
++    }),
++    license({
++      banner: {
++        commentStyle: 'none', // INSERTING CODE !!!
++        content:
++`
++////////////////////////////////////////////////////
++const epoch_ms = Date.now(); // In the Beginning ...
++////////////////////////////////////////////////////
++`
++      }
++    }),
++  ],
++  output: {
++    file: './lightning-perf-spark.js',
++    format: 'cjs',
++    name: 'lng'
++  }
+ };
+\ No newline at end of file
+diff --git a/node_modules/wpe-lightning-sdk/dist/web/js/init.js b/node_modules/wpe-lightning-sdk/dist/web/js/init.js
+index 0565b7b..1a8c886 100644
+--- a/node_modules/wpe-lightning-sdk/dist/web/js/init.js
++++ b/node_modules/wpe-lightning-sdk/dist/web/js/init.js
+@@ -63,6 +63,11 @@ function startApp() {
+ 
+     try {
+         var bootstrap = new ux.Ui(options);
++
++        ////////////////////////////////////////////////////
++        bootstrap.stage.startApp_ms = Date.now();  // Timestamp START the App
++        ////////////////////////////////////////////////////
++
+         bootstrap.startApp(appBundle);
+     } catch (e) {
+         alert("error " + e)
+@@ -122,6 +127,10 @@ function loadJsFile(filename) {
+ 
+ const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/babel-polyfill-6.23.0.js");
+ 
++////////////////////////////////////////////////////
++const epoch_ms = Date.now(); // In the Beginning ...
++////////////////////////////////////////////////////
++
+ loadPolyfill.then(function() {
+     return loadJsFile("lightning-web.js").then(function() {
+         return loadJsFile("ux.js").then(function() {
