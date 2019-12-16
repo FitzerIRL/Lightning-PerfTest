@@ -12,12 +12,16 @@ gl:http://127.0.0.1/spark/lightning-perf-spark.js
 */
 
 var lastCount     = 0;
+var lastFrame_ms  = 0;
 
 var frameStart_ms = 0;
 var frameEnd_ms   = 0;
 
-var PFX = ">>  ";
-//  ">> TEST: ";
+var minJitter_ms  = 10000;
+var maxJitter_ms  = 0;//-10000;
+
+var PFX = "";//>>  "
+var LOG_PFX = "LIGHTNING_PERF >>  ";
 
 var IMG_ITERATIONS =    1000;
 var TXT_ITERATIONS =  100000;
@@ -35,12 +39,15 @@ class MyApp extends ux.App
     ];
   }
 
-  
+
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   _init()
   {
     this.count = 0;
+    this.fpsData      = [];
+    this.fpsSamples   = 1000;
+    this.startFpsTest = false;
 
     let self = this;
 
@@ -51,16 +58,68 @@ class MyApp extends ux.App
 
     this.stage.on('frameStart', () =>
     {
-        if(this.stage.frameCounter == 0)
-            ;
+        // if(this.stage.frameCounter == 0)
+        //     ;
+
+       // frameStart_ms =  Date.now();
     });
     this.stage.on('frameEnd', () =>
     {
-      var frames = this.stage.frameCounter - lastCount;
+      var now    = Date.now();
+      var frames = (this.stage.frameCounter - lastCount);
+
+      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      if(this.startFpsTest && frameStart_ms != 0)// && this.fpsSamples > 0)
+      {
+        var thisFrame_ms = (now - frameStart_ms);
+        var delta_ms     = Math.abs(lastFrame_ms - thisFrame_ms);
+
+        this.fpsData.push(thisFrame_ms);
+
+        if(delta_ms >= maxJitter_ms)
+        {
+          console.log(" thisFrame_ms: " + thisFrame_ms +"      delta_ms: " + delta_ms );
+        }
+
+        minJitter_ms = (delta_ms <  minJitter_ms) ? minJitter_ms = delta_ms : minJitter_ms;
+        maxJitter_ms = (delta_ms >= maxJitter_ms) ? maxJitter_ms = delta_ms : maxJitter_ms;
+
+        lastFrame_ms = thisFrame_ms;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //
+        //  FRAME RATE SAMPLING + + STD DEV
+        //
+        if(this.startFpsTest)
+        {
+          if(this.fpsSamples > 0)
+          {
+            this.fpsSamples--;
+          }
+          else
+          {
+            //std dev
+            const n    = this.fpsData.length;
+            const mean = this.fpsData.reduce((a,b) => a+b)/n;
+            const s    = Math.sqrt(this.fpsData.map(x => Math.pow(x-mean,2)).reduce((a,b) => a+b)/n);
+
+            console.log("INFO:  FPS ... Standard Dev: " + s);
+
+            // LOG RESULT
+            this.patch({ Text5:  {text: PFX + "Frame Rate:  Max: " + maxJitter_ms + "  min: " + minJitter_ms + "  Std Dev: " + s }});
+            console.log( LOG_PFX + "FrameRate=" + maxJitter_ms + " (Max) " + minJitter_ms + " (min)  " + s + "  (StdDev)");
+
+            this._setState('EndTests');
+            this.startFpsTest = false;
+          }
+        }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      }
+      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
       if(frames >= 60)
       {
-        frameEnd_ms = Date.now();
+        frameEnd_ms = now;
 
         var frame_ms = (frameEnd_ms - frameStart_ms)/frames; // average Frame Time
         var      fps = (1.0 / (frame_ms / 1000.0));
@@ -69,7 +128,9 @@ class MyApp extends ux.App
         // console.log(' frames: ' + frames );
         // console.log('>> frame_ms: ' + frame_ms     + " ms\n" );
 
-        self.patch({ Fps: {text: "fps: " + fps.toFixed(2) }});
+        var jitterTxt = (this.startFpsTest) ? ("  M: " + maxJitter_ms + "  m: " + minJitter_ms) : "";
+
+        self.patch({ Fps: {text: "fps: " + fps.toFixed(2) + jitterTxt }});
         frameStart_ms = frameEnd_ms;
 
         lastCount = this.stage.frameCounter;
@@ -78,8 +139,9 @@ class MyApp extends ux.App
 
     if(typeof epoch_ms !== 'undefined')
     {
-      var loaded  = "Load Time: Lightning ... in " + (Date.now() - epoch_ms) + " ms  \n";
-      console.log( loaded );
+      // LOG RESULT
+      var loaded  = "LoadTime=" + (Date.now() - epoch_ms) + " ms  \n";
+      console.log( LOG_PFX + loaded );
 
       this.patch({ Text1: {text: loaded }});
     }
@@ -90,8 +152,9 @@ class MyApp extends ux.App
 
     if(typeof this.stage.startApp_ms !== 'undefined')
     {
-      var started = 'Start Time: App ... in ' + (Date.now() -  this.stage.startApp_ms) + " ms  \n";
-      console.log( started );
+      // LOG RESULT
+      var started = 'StartTime=' + (Date.now() -  this.stage.startApp_ms) + " ms  \n";
+      console.log( LOG_PFX + started );
 
       this.patch({ Text2: {text: started}});
     }
@@ -106,7 +169,6 @@ class MyApp extends ux.App
 
     this.perfTests = [];
     this._setState('StartTests');
-
   }// init()
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -133,7 +195,8 @@ class MyApp extends ux.App
 
   async doImageTests()
   {
-    const image_url = "https://webplatformforembedded.github.io/Lightning/img/Lightning.png";
+    // const image_url = "https://webplatformforembedded.github.io/Lightning/img/Lightning.png";
+    const image_url = "http://www.sparkui.org/docs/images/SparkEdge128.png";
 
     var res = [];
 
@@ -155,13 +218,16 @@ class MyApp extends ux.App
 
       if(i%10 == 0)
       {
-        this.patch({ Text3: {text: PFX + "ImageTexture: "+average_ms.toFixed(2) +" ms ... (running - "+i+" of "+IMG_ITERATIONS+")"  }});
+        this.patch({ Text3: {text: PFX + "ImageTexture: ... "+average_ms.toFixed(2) +" ms ... (running - "+i+" of "+IMG_ITERATIONS+")"  }});
       }
     }//FOR
     // - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // this.patch({ Text3: {text: PFX + "ImageTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
+    // LOG RESULT
     this.patch({ Text3: {text:  PFX + "ImageTexture: " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec "  }});
+    console.log( LOG_PFX + "ImageTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec " );
+
+    // this.patch({ Text3: {text: PFX + "ImageTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
 
     this._setState('DoTextTests');
   }
@@ -226,9 +292,22 @@ class MyApp extends ux.App
     // - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // this.patch({ Text4: {text: PFX + "TextTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
-    this.patch({ Text4: {text:  PFX + "TextTexture: " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")" }});
 
-    this._setState('DoTextTests');
+    // LOG RESULT
+    this.patch({ Text4: {text:  PFX + "TextTexture: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")" }});
+    console.log( LOG_PFX + "TextTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"  );
+
+
+    // this._setState('DoTextTests');
+    this._setState('DoFpsTests');
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  doFpsTests()
+  {
+    this.startFpsTest = true;
+    this.patch({ Text5:  {text: PFX + "Frame Rate   (running) "  }});
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -236,8 +315,9 @@ class MyApp extends ux.App
   doTests()
   {
     this.patch({ Status: {text: "Status:  Testing..." }});
-    this.patch({ Text3:  {text: PFX + "ImageTexture (pending) "  }});
-    this.patch({ Text4:  {text: PFX + "TextTexture  (pending) "  }});
+    this.patch({ Text3:  {text: PFX + "ImageTexture: (pending) "  }});
+    this.patch({ Text4:  {text: PFX + "TextTexture:  (pending) "  }});
+    this.patch({ Text5:  {text: PFX + "Frame Rate:   (pending) "  }});
 
     this._setState('DoImageTests');
   }
@@ -277,6 +357,16 @@ class MyApp extends ux.App
           console.log("Finishing TEXT Tests...");
         }
       },
+      class DoFpsTests extends this
+      {
+        $enter(){
+          console.log("Starting FPS Tests...");
+          this.doFpsTests();
+        }
+        $exit(){
+          console.log("Finishing FPS Tests...");
+        }
+      },
       class EndTests extends this
       {
         $enter(event){
@@ -306,9 +396,10 @@ class MyApp extends ux.App
       Text2:  { x: 100, y: 200, text: { fontSize: 30, textColor: 0xffeeeeff, text: 'Start Time:'                           } },
       Text3:  { x: 100, y: 250, text: { fontSize: 30, textColor: 0xffeeeeff, text: '"'                                     } },
       Text4:  { x: 100, y: 300, text: { fontSize: 30, textColor: 0xffeeeeff, text: '"'                                     } },
+      Text5:  { x: 100, y: 350, text: { fontSize: 30, textColor: 0xffeeeeff, text: '"'                                     } },
     };
 
-    for(var i =0; i< 4; i++)
+    for(var i =0; i< 5; i++)
     {
       gui["Bullet"+i] =  { x: 65, y: 160 + (i*50), w: 15, h: 15,  rect: true, color: 0xFFaaaaaa   }; // "#aaaaaa"
     }
@@ -317,8 +408,8 @@ class MyApp extends ux.App
   }
 }//CLASS - MyApp
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class TextItem extends ux.App
 {
