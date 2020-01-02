@@ -2,6 +2,10 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -37,7 +41,7 @@ var appBundle = function () {
 
   var LOG_PFX = "LIGHTNING_PERF >>  ";
   var IMG_ITERATIONS = 1000;
-  var TXT_ITERATIONS = 100000; // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  var TXT_ITERATIONS = 1000; // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   var MyApp =
   /*#__PURE__*/
@@ -224,76 +228,86 @@ var appBundle = function () {
 
     }, {
       key: "doImageTests",
-      value: function doImageTests() {
-        var image_url, res, sigma_ms, average_ms, i, ans;
-        return regeneratorRuntime.async(function doImageTests$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                // const image_url = "https://webplatformforembedded.github.io/Lightning/img/Lightning.png";
-                image_url = "http://www.sparkui.org/docs/images/SparkEdge128.png";
-                res = [];
-                sigma_ms = 0;
-                average_ms = 0;
-                this.patch({
-                  Text3: {
-                    text: PFX + "ImageTexture:  (running)"
-                  }
-                }); // - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                i = 0;
-
-              case 6:
-                if (!(i < IMG_ITERATIONS)) {
-                  _context.next = 17;
-                  break;
-                }
-
-                _context.next = 9;
-                return regeneratorRuntime.awrap(this.doImageTest(image_url));
-
-              case 9:
-                ans = _context.sent;
-                // AWAIT promise
-                res.push(ans); // Compute running average...
-                //
-
-                sigma_ms += ans;
-                average_ms = sigma_ms / res.length;
-
-                if (i % 10 == 0) {
+      value: function () {
+        var _doImageTests = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee() {
+          var image_url, res, sigma_ms, average_ms, i, ans;
+          return regeneratorRuntime.wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  // const image_url = "https://webplatformforembedded.github.io/Lightning/img/Lightning.png";
+                  image_url = "http://www.sparkui.org/docs/images/SparkEdge128.png";
+                  res = [];
+                  sigma_ms = 0;
+                  average_ms = 0;
                   this.patch({
                     Text3: {
-                      text: PFX + "ImageTexture: ... " + average_ms.toFixed(2) + " ms ... (running - " + i + " of " + IMG_ITERATIONS + ")"
+                      text: PFX + "ImageTexture:  (running)"
+                    }
+                  }); // - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                  i = 0;
+
+                case 6:
+                  if (!(i < IMG_ITERATIONS)) {
+                    _context.next = 17;
+                    break;
+                  }
+
+                  _context.next = 9;
+                  return this.doImageTest(image_url);
+
+                case 9:
+                  ans = _context.sent;
+                  // AWAIT promise
+                  res.push(ans); // Compute running average...
+                  //
+
+                  sigma_ms += ans;
+                  average_ms = sigma_ms / res.length;
+
+                  if (i % 10 == 0) {
+                    this.patch({
+                      Text3: {
+                        text: PFX + "ImageTexture: ... " + average_ms.toFixed(2) + " ms ... (running - " + i + " of " + IMG_ITERATIONS + ")"
+                      }
+                    });
+                  }
+
+                case 14:
+                  i++;
+                  _context.next = 6;
+                  break;
+
+                case 17:
+                  //FOR
+                  // - - - - - - - - - - - - - - - - - - - - - - - - - -
+                  // LOG RESULT
+                  this.patch({
+                    Text3: {
+                      text: PFX + "ImageTexture: " + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec "
                     }
                   });
-                }
+                  console.log(LOG_PFX + "ImageTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec "); // this.patch({ Text3: {text: PFX + "ImageTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
 
-              case 14:
-                i++;
-                _context.next = 6;
-                break;
+                  this._setState('DoTextTests');
 
-              case 17:
-                //FOR
-                // - - - - - - - - - - - - - - - - - - - - - - - - - -
-                // LOG RESULT
-                this.patch({
-                  Text3: {
-                    text: PFX + "ImageTexture: " + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec "
-                  }
-                });
-                console.log(LOG_PFX + "ImageTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec "); // this.patch({ Text3: {text: PFX + "ImageTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
-
-                this._setState('DoTextTests');
-
-              case 20:
-              case "end":
-                return _context.stop();
+                case 20:
+                case "end":
+                  return _context.stop();
+              }
             }
-          }
-        }, null, this);
-      } // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          }, _callee, this);
+        }));
+
+        function doImageTests() {
+          return _doImageTests.apply(this, arguments);
+        }
+
+        return doImageTests;
+      }() // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     }, {
       key: "doTextTest",
@@ -326,75 +340,85 @@ var appBundle = function () {
 
     }, {
       key: "doTextTests",
-      value: function doTextTests() {
-        var res, sigma_ms, average_ms, i, ans;
-        return regeneratorRuntime.async(function doTextTests$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                res = [];
-                sigma_ms = 0;
-                average_ms = 0;
-                this.patch({
-                  Text4: {
-                    text: PFX + "TextTexture:  (running)"
-                  }
-                }); // - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                i = 0;
-
-              case 5:
-                if (!(i < TXT_ITERATIONS)) {
-                  _context2.next = 16;
-                  break;
-                }
-
-                _context2.next = 8;
-                return regeneratorRuntime.awrap(this.doTextTest(i));
-
-              case 8:
-                ans = _context2.sent;
-                // AWAIT promise
-                res.push(ans); // Compute running average...
-                //
-
-                sigma_ms += ans;
-                average_ms = sigma_ms / res.length;
-
-                if (i % 10 == 0) {
+      value: function () {
+        var _doTextTests = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee2() {
+          var res, sigma_ms, average_ms, i, ans;
+          return regeneratorRuntime.wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  res = [];
+                  sigma_ms = 0;
+                  average_ms = 0;
                   this.patch({
                     Text4: {
-                      text: PFX + "TextTexture: " + average_ms.toFixed(2) + " ms ... (running - " + i + " of " + TXT_ITERATIONS + ")"
+                      text: PFX + "TextTexture:  (running)"
+                    }
+                  }); // - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                  i = 0;
+
+                case 5:
+                  if (!(i < TXT_ITERATIONS)) {
+                    _context2.next = 16;
+                    break;
+                  }
+
+                  _context2.next = 8;
+                  return this.doTextTest(i);
+
+                case 8:
+                  ans = _context2.sent;
+                  // AWAIT promise
+                  res.push(ans); // Compute running average...
+                  //
+
+                  sigma_ms += ans;
+                  average_ms = sigma_ms / res.length;
+
+                  if (i % 10 == 0) {
+                    this.patch({
+                      Text4: {
+                        text: PFX + "TextTexture: " + average_ms.toFixed(2) + " ms ... (running - " + i + " of " + TXT_ITERATIONS + ")"
+                      }
+                    });
+                  }
+
+                case 13:
+                  i++;
+                  _context2.next = 5;
+                  break;
+
+                case 16:
+                  //FOR
+                  // - - - - - - - - - - - - - - - - - - - - - - - - - -
+                  // this.patch({ Text4: {text: PFX + "TextTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
+                  // LOG RESULT
+                  this.patch({
+                    Text4: {
+                      text: PFX + "TextTexture: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"
                     }
                   });
-                }
+                  console.log(LOG_PFX + "TextTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"); // this._setState('DoTextTests');
 
-              case 13:
-                i++;
-                _context2.next = 5;
-                break;
+                  this._setState('DoFpsTests');
 
-              case 16:
-                //FOR
-                // - - - - - - - - - - - - - - - - - - - - - - - - - -
-                // this.patch({ Text4: {text: PFX + "TextTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
-                // LOG RESULT
-                this.patch({
-                  Text4: {
-                    text: PFX + "TextTexture: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"
-                  }
-                });
-                console.log(LOG_PFX + "TextTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms / 1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"); // this._setState('DoTextTests');
-
-                this._setState('DoFpsTests');
-
-              case 19:
-              case "end":
-                return _context2.stop();
+                case 19:
+                case "end":
+                  return _context2.stop();
+              }
             }
-          }
-        }, null, this);
-      } // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          }, _callee2, this);
+        }));
+
+        function doTextTests() {
+          return _doTextTests.apply(this, arguments);
+        }
+
+        return doTextTests;
+      }() // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     }, {
       key: "doFpsTests",

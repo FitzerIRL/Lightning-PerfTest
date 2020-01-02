@@ -20,8 +20,8 @@ var appBundle = (function () {
   var PFX = "";//>>  "
   var LOG_PFX = "LIGHTNING_PERF >>  ";
 
-  var IMG_ITERATIONS =    1000;
-  var TXT_ITERATIONS =  100000;
+  var IMG_ITERATIONS =  1000;
+  var TXT_ITERATIONS =  1000;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   class MyApp extends ux.App
