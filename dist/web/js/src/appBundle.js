@@ -22,6 +22,9 @@ var appBundle = (function () {
 
   var IMG_ITERATIONS =  1000;
   var TXT_ITERATIONS =  1000;
+
+  var DELAY_MS       =  3 * 1000;
+
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   class MyApp extends ux.App
@@ -165,7 +168,11 @@ var appBundle = (function () {
       // const font_url  = font_list[0].url;
 
       this.perfTests = [];
-      this._setState('StartTests');
+
+      {
+        this._setState('DelayStart');
+      }
+
     }// init()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -294,8 +301,6 @@ var appBundle = (function () {
       this.patch({ Text4: {text:  PFX + "TextTexture: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")" }});
       console.log( LOG_PFX + "TextTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"  );
 
-
-      // this._setState('DoTextTests');
       this._setState('DoFpsTests');
     }
 
@@ -319,11 +324,33 @@ var appBundle = (function () {
       this._setState('DoImageTests');
     }
 
+    delayStart()
+    {
+      this.patch({ Status: {text: "Status:  Waiting..." }});
+
+      let self = this;
+      setTimeout( () =>
+      {
+        self.patch({ Status: {text: "Status:  Starting..." }});
+        self._setState('DoTextTests');
+
+      }, DELAY_MS);
+    }
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     static _states()
     {
       return [
+        class DelayStart extends this
+        {
+          $enter(event){
+            console.log("Delayed Start Tests...");
+            this.delayStart();
+          }
+          $exit(){
+            console.log("Commecing Tests...");
+          }
+        },
         class StartTests extends this
         {
           $enter(event){
