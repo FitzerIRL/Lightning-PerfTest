@@ -42,7 +42,8 @@ var appBundle = function () {
   var LOG_PFX = "LIGHTNING_PERF >>  ";
   var IMG_ITERATIONS = 1000;
   var TXT_ITERATIONS = 1000;
-  var DELAY_MS = 3 * 1000; // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  var DELAY_MS = 3 * 60 * 1000; // 3 mins
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   var MyApp =
   /*#__PURE__*/
