@@ -41,9 +41,7 @@ var appBundle = function () {
 
   var LOG_PFX = "LIGHTNING_PERF >>  ";
   var IMG_ITERATIONS = 1000;
-  var TXT_ITERATIONS = 1000;
-  var DELAY_MS = 3 * 60 * 1000; // 3 mins
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  var TXT_ITERATIONS = 1000; // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   var MyApp =
   /*#__PURE__*/
@@ -205,9 +203,8 @@ var appBundle = function () {
 
 
         this.perfTests = [];
-        {
-          this._setState('DelayStart');
-        }
+
+        this._setState('StartTests');
       } // init()
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -459,25 +456,6 @@ var appBundle = function () {
         });
 
         this._setState('DoImageTests');
-      }
-    }, {
-      key: "delayStart",
-      value: function delayStart() {
-        this.patch({
-          Status: {
-            text: "Status:  Waiting..."
-          }
-        });
-        var self = this;
-        setTimeout(function () {
-          self.patch({
-            Status: {
-              text: "Status:  Starting..."
-            }
-          });
-
-          self._setState('DoTextTests');
-        }, DELAY_MS);
       } // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     }], [{
@@ -486,32 +464,7 @@ var appBundle = function () {
         return [
         /*#__PURE__*/
         function (_this2) {
-          _inherits(DelayStart, _this2);
-
-          function DelayStart() {
-            _classCallCheck(this, DelayStart);
-
-            return _possibleConstructorReturn(this, _getPrototypeOf(DelayStart).apply(this, arguments));
-          }
-
-          _createClass(DelayStart, [{
-            key: "$enter",
-            value: function $enter(event) {
-              console.log("Delayed Start Tests...");
-              this.delayStart();
-            }
-          }, {
-            key: "$exit",
-            value: function $exit() {
-              console.log("Commecing Tests...");
-            }
-          }]);
-
-          return DelayStart;
-        }(this),
-        /*#__PURE__*/
-        function (_this3) {
-          _inherits(StartTests, _this3);
+          _inherits(StartTests, _this2);
 
           function StartTests() {
             _classCallCheck(this, StartTests);
@@ -535,8 +488,8 @@ var appBundle = function () {
           return StartTests;
         }(this),
         /*#__PURE__*/
-        function (_this4) {
-          _inherits(DoImageTests, _this4);
+        function (_this3) {
+          _inherits(DoImageTests, _this3);
 
           function DoImageTests() {
             _classCallCheck(this, DoImageTests);
@@ -560,8 +513,8 @@ var appBundle = function () {
           return DoImageTests;
         }(this),
         /*#__PURE__*/
-        function (_this5) {
-          _inherits(DoTextTests, _this5);
+        function (_this4) {
+          _inherits(DoTextTests, _this4);
 
           function DoTextTests() {
             _classCallCheck(this, DoTextTests);
@@ -585,8 +538,8 @@ var appBundle = function () {
           return DoTextTests;
         }(this),
         /*#__PURE__*/
-        function (_this6) {
-          _inherits(DoFpsTests, _this6);
+        function (_this5) {
+          _inherits(DoFpsTests, _this5);
 
           function DoFpsTests() {
             _classCallCheck(this, DoFpsTests);
@@ -610,8 +563,8 @@ var appBundle = function () {
           return DoFpsTests;
         }(this),
         /*#__PURE__*/
-        function (_this7) {
-          _inherits(EndTests, _this7);
+        function (_this6) {
+          _inherits(EndTests, _this6);
 
           function EndTests() {
             _classCallCheck(this, EndTests);

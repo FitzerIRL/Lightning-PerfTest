@@ -23729,8 +23729,6 @@ var LOG_PFX = "LIGHTNING_PERF >>  ";
 var IMG_ITERATIONS =  1000;
 var TXT_ITERATIONS =  1000;
 
-var DELAY_MS       =  3 * 60 * 1000;  // 3 mins
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class MyApp extends ux$1.App
@@ -23874,15 +23872,8 @@ class MyApp extends ux$1.App
     // const font_url  = font_list[0].url;
 
     this.perfTests = [];
+    this._setState('StartTests');
 
-    if(DELAY_MS > 0)
-    {
-      this._setState('DelayStart');
-    }
-    else
-    {
-      this._setState('StartTests');
-    }
   }// init()
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -24036,34 +24027,11 @@ class MyApp extends ux$1.App
     this._setState('DoImageTests');
   }
 
-  delayStart()
-  {
-    this.patch({ Status: {text: "Status:  Waiting..." }});
-
-    let self = this;
-    setTimeout( () =>
-    {
-      self.patch({ Status: {text: "Status:  Starting..." }});
-      self._setState('DoTextTests');
-
-    }, DELAY_MS)
-  }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   static _states()
   {
     return [
-    class DelayStart extends this
-      {
-        $enter(event){
-          console.log("Delayed Start Tests...");
-          this.delayStart();
-        }
-        $exit(){
-          console.log("Commecing Tests...");
-        }
-      },
       class StartTests extends this
       {
         $enter(event){
