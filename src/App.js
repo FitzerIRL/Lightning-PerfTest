@@ -136,7 +136,7 @@ export default class MyApp extends ux.App
     if(typeof epoch_ms !== 'undefined')
     {
       // LOG RESULT
-      var loaded  = "LoadTime=" + (Date.now() - epoch_ms) + " ms  \n";
+      var loaded  = "LightningFrameworkLoadTime=" + (Date.now() - epoch_ms) + " ms  \n";
       console.log( LOG_PFX + loaded );
 
       this.patch({ Text1: {text: loaded }});
@@ -149,7 +149,7 @@ export default class MyApp extends ux.App
     if(typeof this.stage.startApp_ms !== 'undefined')
     {
       // LOG RESULT
-      var started = 'StartTime=' + (Date.now() -  this.stage.startApp_ms) + " ms  \n";
+      var started = 'LightningAppLoadTime=' + (Date.now() -  this.stage.startApp_ms) + " ms  \n";
       console.log( LOG_PFX + started );
 
       this.patch({ Text2: {text: started}});
@@ -221,10 +221,10 @@ export default class MyApp extends ux.App
     // - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // LOG RESULT
-    this.patch({ Text3: {text:  PFX + "ImageTexture: " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec "  }});
-    console.log( LOG_PFX + "ImageTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec " );
+    this.patch({ Text3: {text:  PFX + "ImageLoadTime: " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec "  }});
+    console.log( LOG_PFX + "ImageLoadTime=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec " );
 
-    // this.patch({ Text3: {text: PFX + "ImageTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
+    // this.patch({ Text3: {text: PFX + "ImageLoadTime: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
 
     this._setState('DoTextTests');
   }
@@ -283,16 +283,16 @@ export default class MyApp extends ux.App
 
       if(i%10 == 0)
       {
-        this.patch({ Text4: {text: PFX + "TextTexture: "+average_ms.toFixed(2) +" ms ... (running - "+i+" of "+TXT_ITERATIONS+")"  }});
+        this.patch({ Text4: {text: PFX + "TextLoadTime: "+average_ms.toFixed(2) +" ms ... (running - "+i+" of "+TXT_ITERATIONS+")"  }});
       }
     }//FOR
     // - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // this.patch({ Text4: {text: PFX + "TextTexture: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
+    // this.patch({ Text4: {text: PFX + "TextLoadTime: " + average_ms + " ms  [m: " +min_ms +" M: " + max_ms + "]  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec"  }});
 
     // LOG RESULT
-    this.patch({ Text4: {text:  PFX + "TextTexture: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")" }});
-    console.log( LOG_PFX + "TextTexture=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"  );
+    this.patch({ Text4: {text:  PFX + "TextLoadTime: ... " + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")" }});
+    console.log( LOG_PFX + "TextLoadTime=" + average_ms + " ms  ...  elapsed: " + (sigma_ms/1000).toFixed(2) + " sec   ... (" + TXT_ITERATIONS + ")"  );
 
     this._setState('DoFpsTests');
   }
